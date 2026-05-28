@@ -9,7 +9,7 @@ Please look at the html file to see the final paper.
 * **Core Hypothesis:** Structural elements (building density, residential ratios, unit capacities) combined with macro-geographic identifiers (boroughs) capture distinct market premiums, but face limitations due to unobserved neighborhood-level heterogeneity.
 
 ## 📊 Dataset & Scope
-The analysis utilizes the **NYC Housing Prices** dataset (compiled by Ishank2005), which aggregates public transaction records published by the **NYC Department of Finance** and the **NYC Department of City Planning**. 
+The analysis utilizes the **[NYC Housing Prices]([url](https://www.kaggle.com/datasets/ishank2005/nyc-housing-prices-csv))** dataset (compiled by Ishank2005), which aggregates public transaction records published by the **NYC Department of Finance** and the **NYC Department of City Planning**. 
 
 ## 💻 Tech Stack
 * **Language:** R
