@@ -6,11 +6,11 @@ Please look at the html file to see the final paper.
 
 ## 📌 Research Question & Motivation
 * **Primary Objective:** To what extent do physical property characteristics (area and age) and broad geographic location determine the variance in housing sale prices within the NYC real estate market?
-* **Core Hypothesis:** Structural elements (building density, residential ratios, unit capacities) combined with macro-geographic identifiers (boroughs) capture distinct market premiums, but face limitations due to unobserved neighborhood-level heterogeneity.
+* **Core Hypothesis:** Structural elements (building density, residential ratios, unit capacities) combined with boroughs capture distinct market premiums, but face limitations due to unobserved neighborhood-level heterogeneity.
 
 ## 📊 Dataset & Scope
 The analysis utilizes the **[NYC Housing Prices](https://www.kaggle.com/datasets/ishank2005/nyc-housing-prices-csv)** dataset (compiled by Ishank2005), which aggregates public transaction records published by the **NYC Department of Finance** and the **NYC Department of City Planning**. 
 
 ## 💻 Tech Stack
 * **Language:** R
-** **Core Libraries:** `tidyverse` (data wrangling), `ggplot2` (visualization),  `jtools` & `huxtable` (robust regression exports)
+* **Core Libraries:** `tidyverse` (data wrangling), `ggplot2` (visualization),  `jtools` & `huxtable` (robust regression exports)
