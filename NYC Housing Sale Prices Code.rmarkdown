@@ -1,0 +1,268 @@
+---
+title: "390r Final Project Code"
+author: "Xing-Wei"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(haven)
+library(readr)
+library(readxl)
+library(ggplot2) 
+library(sp)
+library(sf)
+library(maps)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(poliscidata)
+library(ggeffects)
+library(skimr)
+library(stargazer)
+library(jtools)
+library(lmtest)
+library(skedastic)
+library(sandwich)
+library(Hmisc)
+
+ishank <- read_csv("C:/Users/Admin/Desktop/CS/390R lin reg/Final Project/nyc_housing_base.csv")
+
+spec(ishank)
+dim(ishank)
+colSums(is.na(ishank))
+
+
+ishank |> 
+  arrange(sale_price)
+
+ishank |> 
+  pull(sale_price) |> 
+  min(na.rm = TRUE)
+
+ishank |> 
+  pull(sale_price) |> 
+  max(na.rm = TRUE)
+
+ishank <- ishank |> 
+  mutate(
+    bldg_density = bldgarea / lotarea
+  )
+
+ishank_copy <- ishank |>
+  na.omit() |>
+  filter(resarea > 0, sale_price > 150000) |>
+  mutate(
+    log_price = log(sale_price),
+    log_density = log(bldg_density),
+    res_ratio = resarea / bldgarea,
+    unit_bins = case_when(
+      unitsres == 1 ~ "1",
+      unitsres >= 2 & unitsres <= 4 ~ "2-4",
+      unitsres >= 5 & unitsres <= 10 ~ "5-10",
+      unitsres >= 11 & unitsres <= 20 ~ "11-20",
+      unitsres >= 21 & unitsres <= 50 ~ "21-50",
+      unitsres >= 51 & unitsres <= 100 ~ "51-100",
+      unitsres > 100 ~ "100+"
+    ),
+    unit_bins = factor(unit_bins, levels = c("1", "2-4", "5-10", "11-20", "21-50", "51-100", "100+")),
+    borough_y = relevel(as.factor(borough_y), ref = "MN")
+  ) |>
+  filter(is.finite(log_density))
+```
+
+```{r}
+cat("Mean:", mean(ishank_copy$log_price), "\n")
+cat("SD:", sd(ishank_copy$log_price), "\n")
+cat("Min:", min(ishank_copy$log_price), "\n")
+cat("Max:", max(ishank_copy$log_price), "\n")
+
+ggplot(ishank_copy, aes(x= log_price)) + 
+  geom_histogram(binwidth = 0.05, fill = "#EDB7E4", color = "black", alpha = 0.8) +
+  labs(
+    x = "Log Sale Price",
+    y = "Amount of Observations for Specific Log Sale Price",
+    title = "Log Sale Price Distribution in Sample"
+  ) + theme_minimal()
+
+ggplot(ishank_copy, aes(x = yearbuilt)) +
+  geom_histogram(fill = "lightblue", color = "white", bins = 60) +
+  labs(title = "Distribution of The Year the Building was Built", x = "Year Built", y = "Count") +
+  theme_minimal()
+
+ggplot(ishank_copy, aes(x = bldg_density)) +
+  geom_histogram(fill = "orange", color = "white", bins = 60) +
+  # scale_x_log10() +
+  labs(title = "Distribution of Building Density", x = "Density Ratio", y = "Count") +
+  theme_minimal()
+
+ggplot(ishank_copy, aes(x = borough_y)) +
+  geom_bar(fill = "magenta", color = "white") +
+  labs(title = "Distribution of Properties in Each Borough", x = "Borough", y = "Count") +
+  theme_minimal()
+
+ggplot(ishank_copy, aes(x = res_ratio)) +
+  geom_histogram(fill = "darkred", color = "white", bins = 60) +
+  labs(title = "Distribution of Residential Ratio", x = "Residential Ratio", y = "Count") +
+  theme_minimal()
+
+ggplot(ishank_copy, aes(x = unit_bins)) +
+  geom_bar(fill = "lightgreen", color = "white") +
+  labs(title = "Distribution of Unit Bins", x = "Unit Bins", y = "Count") +
+  theme_minimal()
+
+```
+```{r}
+yearbuilt_summary <- ishank_copy |>
+  summarise(
+    mean_year = mean(yearbuilt, na.rm = TRUE),
+    sd_year = sd(yearbuilt, na.rm = TRUE),
+    min_year = min(yearbuilt, na.rm = TRUE),
+    max_year = max(yearbuilt, na.rm = TRUE),
+  )
+
+density_summary <- ishank_copy |>
+  summarise(
+    mean_density = mean(bldg_density, na.rm = TRUE),
+    sd_density = sd(bldg_density, na.rm = TRUE),
+    min_density = min(bldg_density, na.rm = TRUE),
+    max_density = max(bldg_density, na.rm = TRUE),
+  )
+
+res_ratio_summary <- ishank_copy |>
+  summarise(
+    mean_res_ratio = mean(res_ratio, na.rm = TRUE),
+    sd_res_ratio = sd(res_ratio, na.rm = TRUE),
+    min_res_ratio = min(res_ratio, na.rm = TRUE),
+    max_res_ratio = max(res_ratio, na.rm = TRUE),
+  )
+
+print(yearbuilt_summary)
+print(density_summary)
+print(res_ratio_summary)
+
+borough_counts <- ishank_copy |>
+  group_by(borough_y) |>
+  summarise(count = n()) |>
+  mutate(percentage = count / sum(count) * 100)
+
+unit_counts <- ishank_copy |>
+  group_by(unit_bins) |>
+  summarise(count = n())
+
+print(borough_counts)
+print(unit_counts)
+```
+
+```{r}
+mat_data <- model.matrix(~ 0 + log_price + yearbuilt + bldg_density + 
+                           res_ratio + borough_y + unit_bins, 
+                         data = ishank_copy)
+
+cor_results <- rcorr(mat_data, type = "pearson")
+round(cor_results$r, 3)
+```
+```{r}
+lm7 <- lm(log_price ~ 
+            yearbuilt + 
+            log_density + 
+            borough_y +
+            unit_bins +       
+            res_ratio,
+          data = ishank_copy)
+stargazer(lm7, type = "text", digits = 3)
+
+
+ishank_copy2 <- ishank_copy |>
+  filter(log_price >= 12, log_price <= 15)
+lm8 <- lm(log_price ~ 
+            yearbuilt + 
+            I(yearbuilt^2) +
+            log_density * borough_y +
+            unit_bins +       
+            res_ratio,
+          data = ishank_copy2)
+
+export_summs(lm8, lm8, robust = list(FALSE, "HC3"),
+             model.names = c("Reg SE", "HC3 SE"), digits=3)
+```
+```{r}
+par(mfrow = c(1, 1))
+plot(lm7, which = 1:6)
+par(mfrow = c(2, 3))
+plot(lm7, which = 1:6)
+
+bptest(lm7)
+white(lm7)
+
+res_sample <- sample(residuals(lm7), 5000)
+shapiro_test <- shapiro.test(res_sample)
+shapiro_test
+```
+```{r}
+par(mfrow = c(1, 1))
+plot(lm8, which = 1:6)
+par(mfrow = c(2, 3))
+plot(lm8, which = 1:6, ask = FALSE)
+
+bptest(lm8)
+white(lm8)
+
+res_sample <- sample(residuals(lm8), 5000)
+shapiro_test <- shapiro.test(res_sample)
+shapiro_test
+```
+```{r}
+plot_interaction <- ggpredict(lm8, terms = c("log_density [all]", "borough_y"))
+
+ggplot(plot_interaction, aes(x = x, y = predicted, color = group)) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill = group), alpha = 0.1, color = NA) +
+  labs(title = "Effect of Density on Price Across Boroughs",
+       subtitle = "Interaction Effect",
+       x = "Log Building Density",
+       y = "Predicted Log Price",
+       color = "Borough",
+       fill = "Borough") +
+  theme_minimal()
+
+plot_borough <- ggpredict(lm8, terms = ("borough_y"))
+
+ggplot(plot_borough, aes(x = x, y = predicted)) +
+  geom_point(color = "purple3", size = 3) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, color = "purple3") +
+  labs(title = "Predicted Price Based on Borough",
+       subtitle = "Relative to Manhattan (Reference Group)",
+       x = "Borough",
+       y = "Predicted Log Price") +
+  theme_minimal()
+
+
+plot_density <- ggpredict(lm8, terms = "log_density [all]")
+
+ggplot(plot_density, aes(x = x, y = predicted)) +
+  geom_line(color = "blue3", linewidth = 1) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.1) +
+  labs(title = "Predicted Price Based on Building Density",
+       subtitle = "Positive correlation between log building density and log sale price",
+       x = "Log of Building Density (Building Area / Lot Area)",
+       y = "Predicted Log Price") +
+  theme_minimal()
+
+plot_year <- ggpredict(lm8, terms = "yearbuilt [all]")
+inflection_year <- -(-0.17339) / (2 * 0.00004)
+
+ggplot(plot_year, aes(x = x, y = predicted)) +
+  geom_line(color = "hotpink", linewidth = 1) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.1) +
+  geom_vline(xintercept = 1950, linetype = "dashed", color = "grey40") +
+  annotate("text", x = 1955, y = 14.2, label = "Trend Shift (~1950)", angle = 90, color = "grey40") +
+  labs(title = "Predicted Price Based on Year Built",
+       subtitle = "Non-linear Relationship",
+       x = "Year Built",
+       y = "Predicted Log Price") +
+  theme_minimal()
+
+
+
+```

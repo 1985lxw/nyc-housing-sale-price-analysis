@@ -1,0 +1,512 @@
+---
+title: "Final Project"
+author: "Xing-Wei Lee"
+format: html
+editor: visual
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+### **Section 1: Research Setup**
+
+**Research Question**
+
+The primary research question this analysis seeks to answer is to what extent do physical property characteristics (area and age) and location determine the variance in housing sale prices within the NYC real estate market?
+
+**Motivation**
+
+Buying a home has become such a far away ideal for most Americans, especially in an aggressive and fast-paced market such as NYC. As a soon-to-be college graduate planning to move to New York City, I am motivated to understand the mechanics of this market to one day navigate it effectively. By identifying what "justifies" a price; specifically the relationship between square footage, building age, and borough location, this analysis empowers buyers to distinguish between fair market value and an overpriced asset.
+
+### **Section 2: Data**
+
+I am using the NYC Housing Prices dataset by Ishank2005 who sourced from public records published by the NYC Department of Finance and the NYC Department of City Planning. Each row of data is a house sold and its related information including borough, building type, and square footage among other things. These records are a sample of final sale prices in the year 2024 and 2025. The types of variables included in the data are structural and geographic, focusing on physical characteristics of the property and location.
+
+### **Section 3: Hypotheses**
+
+1.  Being located in a borough other than Manhattan (Brooklyn, Bronx, Queens, or Staten Island) will be associated with a lower price compared to properties in Manhattan.
+2.  Properties with higher building density (the building area divided by lot area) will be associated with a lower price.
+3.  Properties that were built more recently will be associated with a higher price.
+
+### **Section 4: Conceptual Understanding of OLS**
+
+**Why OLS is Appropriate for this Analysis**
+
+OLS is a suitable modeling strategy for my research question because each coefficient will tell the specific value added/lost by that variable while holding all other factors constant. This will aid my understanding of the unique market drivers in NYC. OLS also provides residuals; a large negative residual identifies a "deal" (underpriced relative to its variables), while a large positive residual indicates an overpriced property.
+
+My dependent variable (final sale price which will be logged) is appropriate for OLS because it will have a more normal distribution of residuals and turn coefficients from being a dollar amount to a percentage. This addreses how NYC real estate prices are right-skewed and better reflect differences across variables.
+
+**Key Assumptions of OLS**
+
+The linearity assumption means that we assume the 5th floor adds the same value as the 50th floor. It is not reasonable to assume linear relationships and I should empirically evaluate it.
+
+My observations are not independent; if a park or a good school is nearby, residential property value will be higher than a residential property farther away from these amenities. Clustering and dependence are definitely issues in a densely populated city, houses in the same zip code likely has related errors since they share the same amenities.
+
+Heteroscedasticity would mean my model is much better at predicting "regular" houses than "luxury" ones. If the spread of errors grows as the price grows, my p-values become unreliable.
+
+The normality of errors assumption matters for inference because if my errors aren't normal, then my p-values become unreliable as I will not have confidence that my independent variables aren't just showing up due to a few extreme outliers.
+
+If two variables are highly correlated it means that the model wouldn't know which one to give the "credit" to for the price. If there is perfect multicollinearity, the model cannot be estimated.
+
+**Consequences of Violations**
+
+If the linearity assumptions is violated it is both biased and inefficient since the line is curved.
+
+If the independence of observation assumption is violated, the model is inefficient and p-values are too small.
+
+If there is heteroskedasticity then the model is inefficient and predictions are less reliable.
+
+If there is multicollinearity, the model is inefficient since it can't tell which IV to give "credit".
+
+**Alternative Approaches**
+
+If OLS assumptions are violated, I can transform specific variables using log or squared, I can either combine or drop one of the variables, I can use robust standard errors, or different models like glm().
+
+### **Section 5: Empirical Analysis**
+
+**Sample Description**
+
+The sample size in my dataset is 34,439 observations. I have 447 missing results. Since I have a large number of observations, I will remove all observations containing missing data.
+
+### **Section 6: Dependent Variable (DV)**
+
+![](images/clipboard-3971854551.png)
+
+Mean: 13.62242
+
+Standard Deviation: 0.8242561
+
+Min: 9.38118
+
+Max: 16.1176
+
+Logging the sale price created a normal distribution, though there is a slight right tail. We can see that the highest bar is around 13.8 which translates to about \$1,000,000, making this the most common price point. This correlates with the mean which is approximately 13.6. Since it is normally distributed, the mean is a good representation, though the right tail may be skewing my data. The standard deviation tells me that most of my data around 13 and 14.6 which translates to about \$440,000 to \$2,000,000. The minimum translates to around \$11,000. The maximum translates to around \$10,000,000.
+
+Low values are true outliers and could represent micro lots or a parent selling to a child while high values represent premium properties like penthouse suites near central park or the waterfront. I will most likely exclude much of the right tail to rid of these outliers. I will need to control for units in a building to ensure the sale isn't a small apartment building.
+
+### **Section 7: Independent Variables (IVs)**
+
+**Variable Selection**
+
+Key independent variables are:
+
+-   yearbuilt
+
+-   bldg_density (the building area divided by lot area)
+
+-   borough_y (borough_x uses numbers while this variable uses abbreviations which help with readability)
+
+Control variables are:
+
+-   unit_bins (residential units put in categorical bins)
+
+This is to prevent the model from assuming that more units means more money. A Brownstone is definitely more expensive than an apartment in an apartment building, bigger does not always mean better.
+
+-   res_ratio (the residential area divided by building area)
+
+This accounts for how much of the building is actually livable or hallways. Properties with smaller residential areas may have a yard or amenities like a gym.
+
+**Conceptual Meaning**
+
+The yearbuilt variable records the year the structure was officially completed and an older yearbuilt value should affect the price by decreasing it because of the wear on the structure; older pipes, roofs, boilers, etc.
+
+The bldg_density variable measures the ratio of building square footage to the size of the land plot. Buildings with higher density may represent apartment complexes and, as stated above, single family homes (less density) are much more expensive than an apartment in an apartment building.
+
+The borough_y variable records which borough the property is located in. This will affect the price because everyone wants to live in Manhattan which drives up the price.
+
+For the control variable unit_bins, which categorizes buildings by the number of residential units, it affects the price by ensuring the model does not compare the price-per-unit of a skyscraper to the price of a private Brownstone.
+
+For the control variable res_ratio, which measures the percentage of the building's total area that is dedicated to residential area, this captures properties that are not only living spaces, but could also be office spaces, shopping areas, restaurants, or residential amenities which will drive up the price.
+
+**Distributions & Descriptive Statistics**
+
+![](images/clipboard-1684198890.png)
+
+![](images/clipboard-3630639338.png)
+
+![](images/clipboard-2311394852.png)
+
+![](images/clipboard-2352547367.png)
+
+![](images/clipboard-1727538223.png)
+
+```{r}
+
+library(tidyverse)
+library(haven)
+library(readr)
+library(readxl)
+library(ggplot2) 
+library(sp)
+library(sf)
+library(maps)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(poliscidata)
+library(ggeffects)
+library(skimr)
+library(stargazer)
+library(jtools)
+library(lmtest)
+library(skedastic)
+library(sandwich)
+library(Hmisc)
+```
+
+```{r}
+
+ishank <- read_csv("C:/Users/Admin/Downloads/nyc_housing_base.csv")
+
+ishank <- ishank |> 
+  mutate(
+    bldg_density = bldgarea / lotarea
+  )
+
+ishank_copy <- ishank |>
+  na.omit() |>
+  filter(resarea > 0, sale_price > 150000) |>
+  mutate(
+    log_price = log(sale_price),
+    log_density = log(bldg_density),
+    res_ratio = resarea / bldgarea,
+    unit_bins = case_when(
+      unitsres == 1 ~ "1",
+      unitsres >= 2 & unitsres <= 4 ~ "2-4",
+      unitsres >= 5 & unitsres <= 10 ~ "5-10",
+      unitsres >= 11 & unitsres <= 20 ~ "11-20",
+      unitsres >= 21 & unitsres <= 50 ~ "21-50",
+      unitsres >= 51 & unitsres <= 100 ~ "51-100",
+      unitsres > 100 ~ "100+"
+    ),
+    unit_bins = factor(unit_bins, levels = c("1", "2-4", "5-10", "11-20", "21-50", "51-100", "100+")),
+    borough_y = relevel(as.factor(borough_y), ref = "MN")
+  ) |>
+  filter(is.finite(log_density))
+
+
+yearbuilt_summary <- ishank_copy |>
+  summarise(
+    mean_year = mean(yearbuilt, na.rm = TRUE),
+    sd_year = sd(yearbuilt, na.rm = TRUE),
+    min_year = min(yearbuilt, na.rm = TRUE),
+    max_year = max(yearbuilt, na.rm = TRUE),
+  )
+
+density_summary <- ishank_copy |>
+  summarise(
+    mean_density = mean(bldg_density, na.rm = TRUE),
+    sd_density = sd(bldg_density, na.rm = TRUE),
+    min_density = min(bldg_density, na.rm = TRUE),
+    max_density = max(bldg_density, na.rm = TRUE),
+  )
+
+res_ratio_summary <- ishank_copy |>
+  summarise(
+    mean_res_ratio = mean(res_ratio, na.rm = TRUE),
+    sd_res_ratio = sd(res_ratio, na.rm = TRUE),
+    min_res_ratio = min(res_ratio, na.rm = TRUE),
+    max_res_ratio = max(res_ratio, na.rm = TRUE),
+  )
+
+print(yearbuilt_summary)
+print(density_summary)
+print(res_ratio_summary)
+
+borough_counts <- ishank_copy |>
+  group_by(borough_y) |>
+  summarise(count = n()) |>
+  mutate(percentage = count / sum(count) * 100)
+
+unit_counts <- ishank_copy |>
+  group_by(unit_bins) |>
+  summarise(count = n()) |>
+  mutate(percentage = count / sum(count) * 100)
+
+print(borough_counts)
+print(unit_counts)
+```
+
+The minimum year built is 1800 which means that the oldest building sold in 2024-2025 is from the year 1800. The maximum year built is 2025 which means the newest building sold in 2024-2025 is from the year 2025.
+
+The minimum building density is 0.0375 which could represent a small utility shed and the maximum building density is 28.9 which could represent skyscrapers and high-rise apartments. In the graph you can see a right skew, so this variable may need to be logged.
+
+The minimum residential ratio is 0.0291 which means the majority of the building is dedicated to shops or offices and the maximum residential ratio is 1.56 which means that every square inch is dedicated to residential living and since it is over 1.0 there may be a basement or attic that is not accounted for in the building area but is in the residential area.
+
+The borough with the least amount of houses sold in 2024-2025 is the Bronx with 9.62%. The borough with the most homes sold in 2024-2025 is Queens with 38.70%,
+
+Buildings with 11-20 residential units (mid-sized apartment buildings) are the least populace making up 2% of the sample. Buildings with 2-4 (e.g. duplexes) residential units are the most populace making up 37% of the sample.
+
+**Correlation Analysis**
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+mat_data <- model.matrix(~ 0 + log_price + yearbuilt + bldg_density + 
+                           res_ratio + borough_y + unit_bins, 
+                         data = ishank_copy)
+
+cor_results <- rcorr(mat_data, type = "pearson")
+cat("\n\nCorrelation Matrix: \n\n")
+round(cor_results$r, 3)
+```
+
+The yearbuilt variable has a negative correlation coefficient of -0.164, indicating that, holding all other factors constant, as the year built gets larger (newer buildings), the log price decreases. This suggests that in this specific raw correlation, older buildings might be associated with higher sale prices.
+
+The bldg_density variable has a positive correlation coefficient of 0.029, indicating that as building density increases, the log price increases slightly.
+
+The res_ratio variable has a negative correlation coefficient of -0.127, indicating that as the proportion of residential space increases, the log price decreases. This may reflect the high value of mixed-use buildings (those with commercial ground floors).
+
+Borough_yMN shows a positive correlation coefficients 0.090, indicating that being located in Manhattan is associated with an increase in log price compared to the city average.
+
+Borough_yBK shows a positive correlation coefficients 0.135, indicating that being located in Brooklyn is associated with an increase in log price compared to the city average.
+
+Borough_yBX shows a negative correlation coefficients 0.078, indicating that being located in the Bronx is associated with a decrease in log price compared to the city average.
+
+Borough_yQN shows a negative correlation coefficients 0.125, indicating that being located in Queens is associated with a decrease in log price compared to the city average.
+
+Borough_ySI shows a negative correlation coefficients 0.019, indicating that being located in Staten Island is associated with a decrease in log price compared to the city average.
+
+The unit_bins2-4 variable has a positive correlation coefficient of 0.222, indicating that buildings with 2-4 units are associated with an increase in log price compared to smaller units in this sample.
+
+The unit_bins5-10 variable has a positive correlation coefficient of 0.110, indicating that buildings with 5-10 units are associated with an increase in log price compared to smaller units in this sample.
+
+The unit_bins11-20 variable has a positive correlation coefficient of 0.023, indicating that buildings with 11-20 units are associated with an increase in log price compared to smaller units in this sample.
+
+The unit_bins21-50 variable has a negative correlation coefficient of 0.012, indicating that buildings with 21-50 units are associated with a decrease in log price compared to smaller units in this sample.
+
+The unit_bins51-100 variable has a negative correlation coefficient of 0.132, indicating that buildings with 51-100 units are associated with a decrease in log price compared to smaller units in this sample.
+
+The unit_bins100+ variable has a negative correlation coefficient of 0.287, indicating that buildings with more than 100 units are associated with a decrease in log price compared to smaller units in this sample.
+
+The relationship between bldg_density and borough_yMN has a strong positive correlation coefficient of 0.739. This indicates that high-density buildings are heavily concentrated in Manhattan.
+
+The relationship between bldg_density and unit_bins100+ has a positive correlation coefficient of 0.465, indicating that buildings with the highest number of units also tend to have the highest structural density.
+
+borough_yBK and borough_yQN have a negative correlation coefficient of -0.501. This is because a property can only be in one borough, if it is in Brooklyn, it cannot be in Queens.
+
+**Multicollinearity**
+
+There is a concern of multicollinearity because the correlation coefficient between bldg_density and borough_yMN is 0.739 which suggests that they may be providing redundant information to the model, which may increase standard error. I may need to drop one of these or combine them to create an interaction term.
+
+**Functional Form Decisions**
+
+I have already logged price to deal with right skew. Instead of measuring dollar changes, the model measures percentage changes. I will also remove houses that are less than log_price 12 to remove the right tail seen in the above correlated graph.
+
+I will most likely log building density to deal with right skew. Even though the maximum building density is 28.9, the mean is only 2.05, which may cause results for smaller buildings to be less accurate; logging will mitigate this.
+
+I have factored borough_y and unit_bins, where borough_y has Manhattan as a reference group whereas unit_bins is put into different bins. This is because there is no numerical order to a borough and Manhattan is known to be the most expensive borough, so this sort of also acts as a control. Binning prevents the model from assuming a linear relationship between 1 unit and 500 units.
+
+Later on, I may need to add a yearbuilt squared, as houses pre WW2 were considered aesthetically pleasing and well built (thicker walls) and thus may be more pricier.
+
+### **Section 8: Modeling**
+
+**Initial Model**
+
+```{r}
+
+
+lm7 <- lm(log_price ~ 
+            yearbuilt + 
+            log_density + 
+            borough_y +
+            unit_bins +       
+            res_ratio,
+          data = ishank_copy)
+stargazer(lm7, type = "text", digits = 3)
+```
+
+**Interpretation**
+
+The yearbuilt variable is statistically significant and has a negative coefficient of 0.001. This means that, holding all other variables constant, for every one unit increase in yearbuilt (one year closer to current year), there is a 0.1% decrease in price. Substantively, older properties in this dataset carry a slight price premium over newer ones.
+
+The log_density variable is statistically significant and has a positive coefficient of 0.157. This means that, holding all other variables constant, for every 1% increase in building density, there is a 0.157% increase in price. Substantively, this indicates that properties with more intensive land use (higher building-to-lot area ratios) are pricier.
+
+The borough_y variables are all statistically significant and have a negative coefficient. This means that, holding all other variables constant, a property located in a borough other than Manhattan is associated with a \~50% decrease in log-price compared to the reference group of Manhattan. Substantively, this highlights the demand for living in Manhattan drives the price in Manhattan so high, all other borough housing prices pale in comparison.
+
+The unit_bins5-10 variable is not statistically significant, while all other unit_bins are highly statistically significant. This means that, holding all other variables constant, we cannot statistically distinguish the price of a 5–10 unit building from the price of the reference group (single-unit properties). While the coefficient is 0.004, we must conclude that this slight difference could be due to random chance rather than a market trend.
+
+The unit_bins100+ variable is statistically significant and has a negative coefficient of 0.991. This means that, holding all other variables constant, properties in the 100+ unit category are associated with a 99.1% lower log-price compared to the reference group of single-unit buildings. Substantively, this reveals a significant "size discount" per observation, suggesting that the market places a massive premium on the exclusivity and privacy of single-unit residences (like Brownstones) over large-scale apartment complexes.
+
+The res_ratio variable is statistically significant and has a negative coefficient of 0.111. This means that, holding all other variables constant, for every one unit increase in the residential-to-total area ratio, there is an 11.1% decrease in price. Substantively, this suggests that properties with a higher mix of non-residential (likely commercial) space are valued more highly than purely residential buildings in this specific dataset.
+
+I reject the null hypothesis of my first hypothesis that being located in a borough other than Manhattan (Brooklyn, Bronx, Queens, or Staten Island) will be associated with a lower price compared to properties in Manhattan. This is because all four borough_y coefficients are statistically significant and negatively correlated. This means that, holding all other variables constant, being in a borough other than Manhattan is much cheaper compared to properties in Manhattan. Holding all other variables constant (meaning that a house with the same characteristics), a property in Brooklyn is 42.0% cheaper than a property in Manhattan. Holding all other variables constant, a property in the Bronx is 63.7% cheaper than a property in Manhattan. Holding all other variables constant, a property in Queens is 51.3% cheaper than a property in Manhattan. Holding all other variables constant, a property in Staten Island is 52.0% cheaper than a property in Manhattan.
+
+I reject the null hypothesis of my second hypothesis that higher building density is associated with a lower price. The coefficient is statistically significant and is actually positive (0.157) not negative like predicted in the hypothesis. This indicates that higher (logged) density instead increases market value. Holding all other variables constant, a 1% increase in the building-to-lot area ratio is associated with a 0.157% increase in price.
+
+I reject the null hypothesis of my third hypothesis which is that properties that were built more recently will be associated with a higher price because the correlation coefficient is negative and statistically significant. Holding all other variables constant, for every additional year a building is newer, the price decreases by 0.1%. This confirms a market preference for older/historic structures.
+
+### **Section 9: Diagnostics & Model Evaluation**
+
+![](images/clipboard-2875113470.png)
+
+```         
+    studentized Breusch-Pagan test  
+    
+data:  lm7 
+BP = 1440.1, df = 13, p-value < 2.2e-16     
+
+Shapiro-Wilk normality test  
+
+data:  res_sample 
+W = 0.97518, p-value < 2.2e-16
+```
+
++------------+---------------+------------+--------------+-------------+
+| statistic  | p.value       | parameter  | method       | alternative |
+|            |               |            |              |             |
+| \<dbl\>    | \<dbl\>       | \<dbl\>    | \<chr\>      | \<chr\>     |
++===========:+==============:+===========:+:=============+:============+
+| 1566.709   | 7.037657e-315 | 26         | White's Test | greater     |
++------------+---------------+------------+--------------+-------------+
+
+**Evaluations**
+
+Residuals vs. Fitted Plot: the plot shows a slight downward tilt with clear outer edges and a gap of points between fitted values 14 and 14.5. However, the line is relatively flat and though the points are not perfectly random, the residual spread is consistent enough that this does not provide much evidence that the linearity assumption is violated.
+
+The White's test has an incredibly small p-value, nearly 0, meaning that there is heteroskedasticity present in my model and may signal incorrect model specification.
+
+Scale-Location Plot: the line seems to be increasing and there is a gap of points between fitted values 14 and 14.5. These points seem more randomly spread, but the line increasing suggests heteroskedasticity.
+
+The Breusch-Pagan's test is statistically significant which means that there is heteroskedasticity present in my model.
+
+Q-Q Plot: There is heavy deviation at the tails, which suggests that the normality assumption is violated and suggests that the error terms are not normally distributed.
+
+The Shapiro-Wilks Test could not run on \~30,000 observation, so I randomly sampled 5,000 observations from my data. Since it is statistically significant, this suggests that the residuals are not normally distributed. The above plots and tests suggest I need to use robust standard errors.
+
+Cook's Distance Plot: There are a few outliers, observation 17286, 20710, 27891.
+
+Cook's Distance vs Leverage Plot: These outliers are also on the top right corner of this plot. Combined, these plots suggest that I may need to remove these outliers.
+
+### **Section 10: Model Revision**
+
+Based on diagnostics, I will only evaluate observations with 12 \<= log_prices \<= 15 which removes non-representative transactions, such as familial \$1 transfers and ultra-luxury outliers, which were causing heavy deviations in the Q-Q plot tails. I will create an interaction between the logged building density and the borough to specifically address the high correlation coefficient of 0.739 identified between these two variables in the correlation matrix. This allows the model to acknowledge that the impact of density is not uniform across the city; instead, the market value of building density is dependent upon the borough in which the property is located. I will also square yearbuilt which hopefully captures the non-linear relationship where price premiums are associated with both the newest construction and the highly-regarded 'pre-war' historic housing. To address the heteroskedasticity, I will use robust standard errors in my model to allow the variability of the error terms to vary by individual response, rather than assuming it is constant. This produces more reliable and valid standard errors.
+
+```{r}
+
+
+ishank_copy2 <- ishank_copy |>
+  filter(log_price >= 12, log_price <= 15)
+
+lm8 <- lm(log_price ~ 
+            yearbuilt + 
+            I(yearbuilt^2) +
+            log_density * borough_y +
+            unit_bins +       
+            res_ratio,
+          data = ishank_copy2)
+export_summs(lm8, lm8, robust = list(FALSE, "HC3"),
+             model.names = c("Reg SE", "HC3 SE"), digits=5)
+```
+
+![](images/clipboard-1219609949.png)
+
+```         
+    studentized Breusch-Pagan test  
+    
+    data:  lm8 
+    BP = 1210.7, df = 18, p-value < 2.2e-16     
+    
+    Shapiro-Wilk normality test  
+    
+    data:  res_sample 
+    W = 0.99272, p-value = 2.562e-15
+```
+
++------------+---------------+------------+--------------+-------------+
+| statistic  | p.value       | parameter  | method       | alternative |
+|            |               |            |              |             |
+| \<dbl\>    | \<dbl\>       | \<dbl\>    | \<chr\>      | \<chr\>     |
++===========:+==============:+===========:+:=============+:============+
+| 1365.662   | 1.240393e-263 | 36         | White's Test | greater     |
++------------+---------------+------------+--------------+-------------+
+
+Many of the interpretations are still the same.
+
+The Q-Q plot still has deviation at the tails, but much less than before. The Scale-Location graph line still increases instead of staying relatively flat, the Breusch-Pagan and White's Test both are statistically significant and suggest heteroskedasticity is present in my model. The Shapiro-Wilk's test is also statistically significant which suggests that the residuals are not normally distributed. The strange gap of plot points in the Residuals vs Fitted, Scale-Location, and Residuals vs Leverage plot is gone which may be due to filtering the log_prices. The R^2^ value increased to 0.282 which may be due to the interaction term log_density:borough_y and the quadratic term yearbuilt^2^ which are all statistically significantly. The model now explains 28.2% of the variance in property values. The borough Staten Island loses statistical significance so the coefficient could be due to random chance rather than a market trend.
+
+I do not think any more modification can alleviate the issues that still persist. So, I will stop here.
+
+### **Section 11: Final Model & Results**
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+export_summs(lm8, 
+             robust = "HC3", 
+             model.names = c("Final Model (HC3 SE)"), 
+             digits = 5,
+             coefs = c(
+               "Intercept" = "(Intercept)",
+               "Year Built" = "yearbuilt",
+               "Year Built Squared" = "I(yearbuilt^2)",
+               "Log Building Density" = "log_density",
+               "Borough: Brooklyn" = "borough_yBK",
+               "Borough: Bronx" = "borough_yBX",
+               "Borough: Queens" = "borough_yQN",
+               "Borough: Staten Island" = "borough_ySI",
+               "Units: 2-4" = "unit_bins2-4",
+               "Units: 5-10" = "unit_bins5-10",
+               "Units: 11-20" = "unit_bins11-20",
+               "Units: 21-50" = "unit_bins21-50",
+               "Units: 51-100" = "unit_bins51-100",
+               "Units: 100+" = "unit_bins100+",
+               "Residential Area Ratio" = "res_ratio",
+               "Density × Brooklyn" = "log_density:borough_yBK",
+               "Density × Bronx" = "log_density:borough_yBX",
+               "Density × Queens" = "log_density:borough_yQN",
+               "Density × Staten Island" = "log_density:borough_ySI"
+             ))
+
+summary(lm8)
+```
+
+**Model Interpretation**
+
+The yearbuilt and yearbuilt^2^ variables are statistically significant. Yearbuilt has a negative coefficient while yearbuilt^2^ has a small positive coefficient. This means that the relationship is not linear and is concave up. Prices decrease as buildings get newer initially, but eventually, the trend reverses as ultra-modern construction and amenities start adding value again. Holding all else constant, the market values both the very old and the very new more than the "middle-aged" buildings.
+
+The log building density coefficient is positive and statistically significant. For the reference borough (Manhattan), a 1% increase in building density is associated with a 0.472% increase in property price. This reflects the high market value placed on land-use intensity in the urban core.
+
+The main effect for borough_y for Brooklyn, Bronx, Queens appear positive but represent the difference in price only when density is at its lowest point compared to Manhattan. The main effect for Staten Island is not statistically significant, meaning at the lowest density levels, there is no detectable price difference between Staten Island and Manhattan.
+
+The density and borough interactions are all statistically significant and negative. Substantively, this means that high-density buildings in other boroughs are valued much less per unit of density than those in Manhattan.
+
+The unit_bins100+ coefficient is negative and statistically significant. Substantively, compared to a single-unit property, a building with over 100 units sees a massive per-observation price discount. The market places a high premium on the exclusivity of small-scale residential living. Interestingly, Units: 5-10 is not significant, meaning there is no statistical difference in price between a 1-unit and a 7-unit building.
+
+The res_ratio is statistically significant and negative. Hold all other variables constant, for every 1-unit increase in the residential-to-total area ratio (moving toward a purely residential building), price decreases by 10.4%. This indicates that properties with a mix of commercial space are valued more highly than purely residential ones.
+
+The R^2^ value indicates that model explains 28.2% of the variance in New York City property prices.
+
+The F-statistic is very large and statistically significant. This means that my independent variables explain significantly more variation in the data than the random errors.
+
+**Hypothesis Testing**
+
+I reject the null hypothesis of my first hypothesis that being located in a borough other than Manhattan (Brooklyn, Bronx, Queens, or Staten Island) will be associated with a lower price compared to properties in Manhattan. This is because all four interaction term coefficients are statistically significant, negative, and larger than just borough_y of which the statistically significant coefficients are positive. Since the interaction coefficients are larger, they offset just borough_y as log building density increases. The interaction terms confirm that once the building density is controlled, Manhattan remains the most expensive borough and properties in other boroughs are associated with comparatively cheaper prices.
+
+I reject the null hypothesis of my second hypothesis that higher building density is associated with a lower price. This is because the coefficient is statistically significant and positive (0.472), not negative like predicted, indicating that higher (logged) density actually increases market value, instead of the predicted devaluation. Holding all other variables constant, a 1% increase in the building-to-lot area ratio is associated with a 0.472% increase in price.
+
+I reject the null hypothesis of my third hypothesis which is that properties that were built more recently will be associated with a higher price because the statistically significant coefficients for yearbuilt and yearbuilt^2^ are not the same direction (negative and positive respectively) which proves that the relationship is not linear. This concave-up curve reveals that the market places a high premium on historic properties (the left side of the curve) and the newest modern developments (the right side), while "middle-aged" buildings see lower valuations.
+
+### **Section 12: Predicted Values**
+
+![](images/clipboard-4148312178.png)
+
+![](images/clipboard-3037360745.png)
+
+![](images/clipboard-3778590975.png)
+
+Log_density x borough_y Predicted Values Plot: Manhattan heavily values building density, likely because density corresponds with prime locations and higher revenue potential for the property. Brooklyn, Bronx, and Queens all follow similar trends of having a much smaller but still positive slope compared to Manhattan. This shows that though density is valued across the city, Manhattan is still the extreme outlier in valuing density. While the main effect for Borough: Staten Island (-0.012) is not statistically significant, the interaction effect Density × Staten Island (-0.626) is highly significant. This indicates that while a low-density property in Staten Island may be valued similarly to one in Manhattan, the "density penalty" in Staten Island is severe. In Manhattan's interaction, moving from low to high, density increases the predicted price from roughly 11.5 to 15.0. In contrast, Staten Island’s interaction causes the price to decreases from about 13.9 to 12.8 as density increases.
+
+Log_density Predicted Values Plot: There is a strong, positive linear relationship between the log of building density and the predicted log price. This confirms that as more buildings build up (and not out), the value per observation increases significantly. From -3 to 3 log building density, the predicted log price increases from 11.7 to 15. This strong correlation indicates that having high logged building density is a big factor in driving up price and is very similar to the interaction term for Manhattan. This is likely because density corresponds with prime locations and higher revenue potential for the property.
+
+Yearbuilt Predicted Values Plot: The relationship between the year a building was built and its price is non-linear. As shown in the plot, the predicted log price is highest for the oldest properties (pre-1850s), dips significantly for buildings constructed during the mid-20th century and begins to rise again for modern construction. The predicted log price starts at 14.4 and drops to 13.4 around 1950, then increase to 13.7 around 2025. This captures the value of "character" and "modernity" over mid-century stock. The high price for pre-war/historic homes likely reflects architectural scarcity and durability (still standing after \~200 years), while the uptick for new buildings likely reflects modern amenities.
+
+### **Section 13: Limitations & Reflection**
+
+Some limitations of my analysis is that it can only explain less than 30% of variation in NYC housing prices, when the standard for a good model would be over 70%. Though the model can predict the average home sale price, it is especially not good at prdicting the outliers outside of the scope I gave it (12 \<= log_price \<= 15). My model also lacks variables that would affect the price, such as date of latest renovation, proximity to nearest park or nearest subway station or construction. A 1920s building that was gutted and renovated in 2025, which is worth far more than one with its original plumbing, yet they would appear identical to the yearbuilt variable. Being 500 feet from a subway entrance or Central Park can drastically increase a property's price, but these small distances cannot be reflected in the borough_y variable. These amenities would certainly affect the price and therefore increase the R^2^ value, improving the model. This dataset also does not capture the volatility of mortgage interest rates since it only spans two years. Having 30 more years of data and its interest rates as a control variable, would improve the model.
+
+In an ideal setting with access to richer datasets, the model would incorporate variables such as proximity to transit, parks, and grocery stores, quality of property views, renovation history, mortgage interest rates at the time of sale, and school district rankings. Furthermore, clustering observations by zip code or neighborhood could better capture geographic heterogeneity and improve the robustness of standard error estimation. Including these additional explanatory variables would likely account for a greater share of the unexplained variance in housing prices and could potentially raise the model’s R^2^ above 70%.

@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Xing-Wei Lee">
+
+<title>Final Project</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/clipboard/clipboard.min.js"></script>
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/popper.min.js"></script>
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/anchor.min.js"></script>
+<link href="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="NYC Housing Sale Prices Data Analysis_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="NYC Housing Sale Prices Data Analysis_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="NYC Housing Sale Prices Data Analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="NYC Housing Sale Prices Data Analysis_files/libs/bootstrap/bootstrap-9e3ffae467580fdb927a41352e75a2e0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Final Project</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Xing-Wei Lee </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="section-1-research-setup" class="level3">
+<h3 class="anchored" data-anchor-id="section-1-research-setup"><strong>Section 1: Research Setup</strong></h3>
+<p><strong>Research Question</strong></p>
+<p>The primary research question this analysis seeks to answer is to what extent do physical property characteristics (area and age) and location determine the variance in housing sale prices within the NYC real estate market?</p>
+<p><strong>Motivation</strong></p>
+<p>Buying a home has become such a far away ideal for most Americans, especially in an aggressive and fast-paced market such as NYC. As a soon-to-be college graduate planning to move to New York City, I am motivated to understand the mechanics of this market to one day navigate it effectively. By identifying what “justifies” a price; specifically the relationship between square footage, building age, and borough location, this analysis empowers buyers to distinguish between fair market value and an overpriced asset.</p>
+</section>
+<section id="section-2-data" class="level3">
+<h3 class="anchored" data-anchor-id="section-2-data"><strong>Section 2: Data</strong></h3>
+<p>I am using the NYC Housing Prices dataset by Ishank2005 who sourced from public records published by the NYC Department of Finance and the NYC Department of City Planning. Each row of data is a house sold and its related information including borough, building type, and square footage among other things. These records are a sample of final sale prices in the year 2024 and 2025. The types of variables included in the data are structural and geographic, focusing on physical characteristics of the property and location.</p>
+</section>
+<section id="section-3-hypotheses" class="level3">
+<h3 class="anchored" data-anchor-id="section-3-hypotheses"><strong>Section 3: Hypotheses</strong></h3>
+<ol type="1">
+<li>Being located in a borough other than Manhattan (Brooklyn, Bronx, Queens, or Staten Island) will be associated with a lower price compared to properties in Manhattan.</li>
+<li>Properties with higher building density (the building area divided by lot area) will be associated with a lower price.</li>
+<li>Properties that were built more recently will be associated with a higher price.</li>
+</ol>
+</section>
+<section id="section-4-conceptual-understanding-of-ols" class="level3">
+<h3 class="anchored" data-anchor-id="section-4-conceptual-understanding-of-ols"><strong>Section 4: Conceptual Understanding of OLS</strong></h3>
+<p><strong>Why OLS is Appropriate for this Analysis</strong></p>
+<p>OLS is a suitable modeling strategy for my research question because each coefficient will tell the specific value added/lost by that variable while holding all other factors constant. This will aid my understanding of the unique market drivers in NYC. OLS also provides residuals; a large negative residual identifies a “deal” (underpriced relative to its variables), while a large positive residual indicates an overpriced property.</p>
+<p>My dependent variable (final sale price which will be logged) is appropriate for OLS because it will have a more normal distribution of residuals and turn coefficients from being a dollar amount to a percentage. This addreses how NYC real estate prices are right-skewed and better reflect differences across variables.</p>
+<p><strong>Key Assumptions of OLS</strong></p>
+<p>The linearity assumption means that we assume the 5th floor adds the same value as the 50th floor. It is not reasonable to assume linear relationships and I should empirically evaluate it.</p>
+<p>My observations are not independent; if a park or a good school is nearby, residential property value will be higher than a residential property farther away from these amenities. Clustering and dependence are definitely issues in a densely populated city, houses in the same zip code likely has related errors since they share the same amenities.</p>
+<p>Heteroscedasticity would mean my model is much better at predicting “regular” houses than “luxury” ones. If the spread of errors grows as the price grows, my p-values become unreliable.</p>
+<p>The normality of errors assumption matters for inference because if my errors aren’t normal, then my p-values become unreliable as I will not have confidence that my independent variables aren’t just showing up due to a few extreme outliers.</p>
+<p>If two variables are highly correlated it means that the model wouldn’t know which one to give the “credit” to for the price. If there is perfect multicollinearity, the model cannot be estimated.</p>
+<p><strong>Consequences of Violations</strong></p>
+<p>If the linearity assumptions is violated it is both biased and inefficient since the line is curved.</p>
+<p>If the independence of observation assumption is violated, the model is inefficient and p-values are too small.</p>
+<p>If there is heteroskedasticity then the model is inefficient and predictions are less reliable.</p>
+<p>If there is multicollinearity, the model is inefficient since it can’t tell which IV to give “credit”.</p>
+<p><strong>Alternative Approaches</strong></p>
+<p>If OLS assumptions are violated, I can transform specific variables using log or squared, I can either combine or drop one of the variables, I can use robust standard errors, or different models like glm().</p>
+</section>
+<section id="section-5-empirical-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="section-5-empirical-analysis"><strong>Section 5: Empirical Analysis</strong></h3>
+<p><strong>Sample Description</strong></p>
+<p>The sample size in my dataset is 34,439 observations. I have 447 missing results. Since I have a large number of observations, I will remove all observations containing missing data.</p>
+</section>
+<section id="section-6-dependent-variable-dv" class="level3">
+<h3 class="anchored" data-anchor-id="section-6-dependent-variable-dv"><strong>Section 6: Dependent Variable (DV)</strong></h3>
+<p><img src="images/clipboard-3971854551.png" class="img-fluid"></p>
+<p>Mean: 13.62242</p>
+<p>Standard Deviation: 0.8242561</p>
+<p>Min: 9.38118</p>
+<p>Max: 16.1176</p>
+<p>Logging the sale price created a normal distribution, though there is a slight right tail. We can see that the highest bar is around 13.8 which translates to about $1,000,000, making this the most common price point. This correlates with the mean which is approximately 13.6. Since it is normally distributed, the mean is a good representation, though the right tail may be skewing my data. The standard deviation tells me that most of my data around 13 and 14.6 which translates to about $440,000 to $2,000,000. The minimum translates to around $11,000. The maximum translates to around $10,000,000.</p>
+<p>Low values are true outliers and could represent micro lots or a parent selling to a child while high values represent premium properties like penthouse suites near central park or the waterfront. I will most likely exclude much of the right tail to rid of these outliers. I will need to control for units in a building to ensure the sale isn’t a small apartment building.</p>
+</section>
+<section id="section-7-independent-variables-ivs" class="level3">
+<h3 class="anchored" data-anchor-id="section-7-independent-variables-ivs"><strong>Section 7: Independent Variables (IVs)</strong></h3>
+<p><strong>Variable Selection</strong></p>
+<p>Key independent variables are:</p>
+<ul>
+<li><p>yearbuilt</p></li>
+<li><p>bldg_density (the building area divided by lot area)</p></li>
+<li><p>borough_y (borough_x uses numbers while this variable uses abbreviations which help with readability)</p></li>
+</ul>
+<p>Control variables are:</p>
+<ul>
+<li>unit_bins (residential units put in categorical bins)</li>
+</ul>
+<p>This is to prevent the model from assuming that more units means more money. A Brownstone is definitely more expensive than an apartment in an apartment building, bigger does not always mean better.</p>
+<ul>
+<li>res_ratio (the residential area divided by building area)</li>
+</ul>
+<p>This accounts for how much of the building is actually livable or hallways. Properties with smaller residential areas may have a yard or amenities like a gym.</p>
+<p><strong>Conceptual Meaning</strong></p>
+<p>The yearbuilt variable records the year the structure was officially completed and an older yearbuilt value should affect the price by decreasing it because of the wear on the structure; older pipes, roofs, boilers, etc.</p>
+<p>The bldg_density variable measures the ratio of building square footage to the size of the land plot. Buildings with higher density may represent apartment complexes and, as stated above, single family homes (less density) are much more expensive than an apartment in an apartment building.</p>
+<p>The borough_y variable records which borough the property is located in. This will affect the price because everyone wants to live in Manhattan which drives up the price.</p>
+<p>For the control variable unit_bins, which categorizes buildings by the number of residential units, it affects the price by ensuring the model does not compare the price-per-unit of a skyscraper to the price of a private Brownstone.</p>
+<p>For the control variable res_ratio, which measures the percentage of the building’s total area that is dedicated to residential area, this captures properties that are not only living spaces, but could also be office spaces, shopping areas, restaurants, or residential amenities which will drive up the price.</p>
+<p><strong>Distributions &amp; Descriptive Statistics</strong></p>
+<p><img src="images/clipboard-1684198890.png" class="img-fluid"></p>
+<p><img src="images/clipboard-3630639338.png" class="img-fluid"></p>
+<p><img src="images/clipboard-2311394852.png" class="img-fluid"></p>
+<p><img src="images/clipboard-2352547367.png" class="img-fluid"></p>
+<p><img src="images/clipboard-1727538223.png" class="img-fluid"></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  mean_year sd_year min_year max_year
+      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1     1941.    28.9     1800     2025</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  mean_density sd_density min_density max_density
+         &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+1         2.05       2.89      0.0375        28.9</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  mean_res_ratio sd_res_ratio min_res_ratio max_res_ratio
+           &lt;dbl&gt;        &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;
+1          0.933        0.136        0.0291          1.56</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 3
+  borough_y count percentage
+  &lt;fct&gt;     &lt;int&gt;      &lt;dbl&gt;
+1 MN         3760      11.7 
+2 BK         9124      28.4 
+3 BX         3090       9.62
+4 QN        12439      38.7 
+5 SI         3691      11.5 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+  unit_bins count percentage
+  &lt;fct&gt;     &lt;int&gt;      &lt;dbl&gt;
+1 1         10506    32.7   
+2 2-4       11951    37.2   
+3 5-10       1279     3.98  
+4 11-20       655     2.04  
+5 21-50      1178     3.67  
+6 51-100     2192     6.83  
+7 100+       4335    13.5   
+8 &lt;NA&gt;          8     0.0249</code></pre>
+</div>
+</div>
+<p>The minimum year built is 1800 which means that the oldest building sold in 2024-2025 is from the year 1800. The maximum year built is 2025 which means the newest building sold in 2024-2025 is from the year 2025.</p>
+<p>The minimum building density is 0.0375 which could represent a small utility shed and the maximum building density is 28.9 which could represent skyscrapers and high-rise apartments. In the graph you can see a right skew, so this variable may need to be logged.</p>
+<p>The minimum residential ratio is 0.0291 which means the majority of the building is dedicated to shops or offices and the maximum residential ratio is 1.56 which means that every square inch is dedicated to residential living and since it is over 1.0 there may be a basement or attic that is not accounted for in the building area but is in the residential area.</p>
+<p>The borough with the least amount of houses sold in 2024-2025 is the Bronx with 9.62%. The borough with the most homes sold in 2024-2025 is Queens with 38.70%,</p>
+<p>Buildings with 11-20 residential units (mid-sized apartment buildings) are the least populace making up 2% of the sample. Buildings with 2-4 (e.g.&nbsp;duplexes) residential units are the most populace making up 37% of the sample.</p>
+<p><strong>Correlation Analysis</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+
+Correlation Matrix: </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                log_price yearbuilt bldg_density res_ratio borough_yMN
+log_price           1.000    -0.164        0.029    -0.127       0.090
+yearbuilt          -0.164     1.000        0.034     0.066      -0.101
+bldg_density        0.029     0.034        1.000     0.017       0.739
+res_ratio          -0.127     0.066        0.017     1.000       0.034
+borough_yMN         0.090    -0.101        0.739     0.034       1.000
+borough_yBK         0.135    -0.225       -0.077    -0.169      -0.230
+borough_yBX        -0.078     0.028       -0.059    -0.074      -0.119
+borough_yQN        -0.125     0.079       -0.261     0.126      -0.290
+borough_ySI        -0.019     0.274       -0.183     0.081      -0.131
+unit_bins2-4        0.222    -0.076       -0.264    -0.213      -0.247
+unit_bins5-10       0.110    -0.120        0.036     0.018       0.053
+unit_bins11-20      0.023    -0.110        0.084     0.023       0.175
+unit_bins21-50     -0.012    -0.077        0.190     0.062       0.256
+unit_bins51-100    -0.132     0.011        0.311     0.103       0.223
+unit_bins100+      -0.287     0.198        0.465     0.074       0.274
+                borough_yBK borough_yBX borough_yQN borough_ySI unit_bins2-4
+log_price             0.135      -0.078      -0.125      -0.019        0.222
+yearbuilt            -0.225       0.028       0.079       0.274       -0.076
+bldg_density         -0.077      -0.059      -0.261      -0.183       -0.264
+res_ratio            -0.169      -0.074       0.126       0.081       -0.213
+borough_yMN          -0.230      -0.119      -0.290      -0.131       -0.247
+borough_yBK           1.000      -0.206      -0.501      -0.227        0.222
+borough_yBX          -0.206       1.000      -0.260      -0.118        0.060
+borough_yQN          -0.501      -0.260       1.000      -0.287       -0.046
+borough_ySI          -0.227      -0.118      -0.287       1.000       -0.051
+unit_bins2-4          0.222       0.060      -0.046      -0.051        1.000
+unit_bins5-10         0.114      -0.022      -0.080      -0.070       -0.157
+unit_bins11-20        0.009      -0.022      -0.080      -0.048       -0.111
+unit_bins21-50       -0.040       0.022      -0.102      -0.066       -0.150
+unit_bins51-100      -0.025       0.012      -0.070      -0.095       -0.209
+unit_bins100+        -0.132      -0.027       0.044      -0.132       -0.304
+                unit_bins5-10 unit_bins11-20 unit_bins21-50 unit_bins51-100
+log_price               0.110          0.023         -0.012          -0.132
+yearbuilt              -0.120         -0.110         -0.077           0.011
+bldg_density            0.036          0.084          0.190           0.311
+res_ratio               0.018          0.023          0.062           0.103
+borough_yMN             0.053          0.175          0.256           0.223
+borough_yBK             0.114          0.009         -0.040          -0.025
+borough_yBX            -0.022         -0.022          0.022           0.012
+borough_yQN            -0.080         -0.080         -0.102          -0.070
+borough_ySI            -0.070         -0.048         -0.066          -0.095
+unit_bins2-4           -0.157         -0.111         -0.150          -0.209
+unit_bins5-10           1.000         -0.029         -0.040          -0.055
+unit_bins11-20         -0.029          1.000         -0.028          -0.039
+unit_bins21-50         -0.040         -0.028          1.000          -0.053
+unit_bins51-100        -0.055         -0.039         -0.053           1.000
+unit_bins100+          -0.081         -0.057         -0.077          -0.107
+                unit_bins100+
+log_price              -0.287
+yearbuilt               0.198
+bldg_density            0.465
+res_ratio               0.074
+borough_yMN             0.274
+borough_yBK            -0.132
+borough_yBX            -0.027
+borough_yQN             0.044
+borough_ySI            -0.132
+unit_bins2-4           -0.304
+unit_bins5-10          -0.081
+unit_bins11-20         -0.057
+unit_bins21-50         -0.077
+unit_bins51-100        -0.107
+unit_bins100+           1.000</code></pre>
+</div>
+</div>
+<p>The yearbuilt variable has a negative correlation coefficient of -0.164, indicating that, holding all other factors constant, as the year built gets larger (newer buildings), the log price decreases. This suggests that in this specific raw correlation, older buildings might be associated with higher sale prices.</p>
+<p>The bldg_density variable has a positive correlation coefficient of 0.029, indicating that as building density increases, the log price increases slightly.</p>
+<p>The res_ratio variable has a negative correlation coefficient of -0.127, indicating that as the proportion of residential space increases, the log price decreases. This may reflect the high value of mixed-use buildings (those with commercial ground floors).</p>
+<p>Borough_yMN shows a positive correlation coefficients 0.090, indicating that being located in Manhattan is associated with an increase in log price compared to the city average.</p>
+<p>Borough_yBK shows a positive correlation coefficients 0.135, indicating that being located in Brooklyn is associated with an increase in log price compared to the city average.</p>
+<p>Borough_yBX shows a negative correlation coefficients 0.078, indicating that being located in the Bronx is associated with a decrease in log price compared to the city average.</p>
+<p>Borough_yQN shows a negative correlation coefficients 0.125, indicating that being located in Queens is associated with a decrease in log price compared to the city average.</p>
+<p>Borough_ySI shows a negative correlation coefficients 0.019, indicating that being located in Staten Island is associated with a decrease in log price compared to the city average.</p>
+<p>The unit_bins2-4 variable has a positive correlation coefficient of 0.222, indicating that buildings with 2-4 units are associated with an increase in log price compared to smaller units in this sample.</p>
+<p>The unit_bins5-10 variable has a positive correlation coefficient of 0.110, indicating that buildings with 5-10 units are associated with an increase in log price compared to smaller units in this sample.</p>
+<p>The unit_bins11-20 variable has a positive correlation coefficient of 0.023, indicating that buildings with 11-20 units are associated with an increase in log price compared to smaller units in this sample.</p>
+<p>The unit_bins21-50 variable has a negative correlation coefficient of 0.012, indicating that buildings with 21-50 units are associated with a decrease in log price compared to smaller units in this sample.</p>
+<p>The unit_bins51-100 variable has a negative correlation coefficient of 0.132, indicating that buildings with 51-100 units are associated with a decrease in log price compared to smaller units in this sample.</p>
+<p>The unit_bins100+ variable has a negative correlation coefficient of 0.287, indicating that buildings with more than 100 units are associated with a decrease in log price compared to smaller units in this sample.</p>
+<p>The relationship between bldg_density and borough_yMN has a strong positive correlation coefficient of 0.739. This indicates that high-density buildings are heavily concentrated in Manhattan.</p>
+<p>The relationship between bldg_density and unit_bins100+ has a positive correlation coefficient of 0.465, indicating that buildings with the highest number of units also tend to have the highest structural density.</p>
+<p>borough_yBK and borough_yQN have a negative correlation coefficient of -0.501. This is because a property can only be in one borough, if it is in Brooklyn, it cannot be in Queens.</p>
+<p><strong>Multicollinearity</strong></p>
+<p>There is a concern of multicollinearity because the correlation coefficient between bldg_density and borough_yMN is 0.739 which suggests that they may be providing redundant information to the model, which may increase standard error. I may need to drop one of these or combine them to create an interaction term.</p>
+<p><strong>Functional Form Decisions</strong></p>
+<p>I have already logged price to deal with right skew. Instead of measuring dollar changes, the model measures percentage changes. I will also remove houses that are less than log_price 12 to remove the right tail seen in the above correlated graph.</p>
+<p>I will most likely log building density to deal with right skew. Even though the maximum building density is 28.9, the mean is only 2.05, which may cause results for smaller buildings to be less accurate; logging will mitigate this.</p>
+<p>I have factored borough_y and unit_bins, where borough_y has Manhattan as a reference group whereas unit_bins is put into different bins. This is because there is no numerical order to a borough and Manhattan is known to be the most expensive borough, so this sort of also acts as a control. Binning prevents the model from assuming a linear relationship between 1 unit and 500 units.</p>
+<p>Later on, I may need to add a yearbuilt squared, as houses pre WW2 were considered aesthetically pleasing and well built (thicker walls) and thus may be more pricier.</p>
+</section>
+<section id="section-8-modeling" class="level3">
+<h3 class="anchored" data-anchor-id="section-8-modeling"><strong>Section 8: Modeling</strong></h3>
+<p><strong>Initial Model</strong></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+===============================================
+                        Dependent variable:    
+                    ---------------------------
+                             log_price         
+-----------------------------------------------
+yearbuilt                    -0.001***         
+                             (0.0001)          
+                                               
+log_density                  0.157***          
+                              (0.007)          
+                                               
+borough_yBK                  -0.420***         
+                              (0.016)          
+                                               
+borough_yBX                  -0.637***         
+                              (0.019)          
+                                               
+borough_yQN                  -0.513***         
+                              (0.017)          
+                                               
+borough_ySI                  -0.520***         
+                              (0.022)          
+                                               
+unit_bins2-4                 0.086***          
+                              (0.010)          
+                                               
+unit_bins5-10                  0.004           
+                              (0.022)          
+                                               
+unit_bins11-20               -0.478***         
+                              (0.029)          
+                                               
+unit_bins21-50               -0.654***         
+                              (0.024)          
+                                               
+unit_bins51-100              -0.891***         
+                              (0.020)          
+                                               
+unit_bins100+                -0.991***         
+                              (0.017)          
+                                               
+res_ratio                    -0.111***         
+                              (0.029)          
+                                               
+Constant                     16.575***         
+                              (0.272)          
+                                               
+-----------------------------------------------
+Observations                  32,096           
+R2                             0.223           
+Adjusted R2                    0.223           
+Residual Std. Error     0.655 (df = 32082)     
+F Statistic         708.937*** (df = 13; 32082)
+===============================================
+Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>The yearbuilt variable is statistically significant and has a negative coefficient of 0.001. This means that, holding all other variables constant, for every one unit increase in yearbuilt (one year closer to current year), there is a 0.1% decrease in price. Substantively, older properties in this dataset carry a slight price premium over newer ones.</p>
+<p>The log_density variable is statistically significant and has a positive coefficient of 0.157. This means that, holding all other variables constant, for every 1% increase in building density, there is a 0.157% increase in price. Substantively, this indicates that properties with more intensive land use (higher building-to-lot area ratios) are pricier.</p>
+<p>The borough_y variables are all statistically significant and have a negative coefficient. This means that, holding all other variables constant, a property located in a borough other than Manhattan is associated with a ~50% decrease in log-price compared to the reference group of Manhattan. Substantively, this highlights the demand for living in Manhattan drives the price in Manhattan so high, all other borough housing prices pale in comparison.</p>
+<p>The unit_bins5-10 variable is not statistically significant, while all other unit_bins are highly statistically significant. This means that, holding all other variables constant, we cannot statistically distinguish the price of a 5–10 unit building from the price of the reference group (single-unit properties). While the coefficient is 0.004, we must conclude that this slight difference could be due to random chance rather than a market trend.</p>
+<p>The unit_bins100+ variable is statistically significant and has a negative coefficient of 0.991. This means that, holding all other variables constant, properties in the 100+ unit category are associated with a 99.1% lower log-price compared to the reference group of single-unit buildings. Substantively, this reveals a significant “size discount” per observation, suggesting that the market places a massive premium on the exclusivity and privacy of single-unit residences (like Brownstones) over large-scale apartment complexes.</p>
+<p>The res_ratio variable is statistically significant and has a negative coefficient of 0.111. This means that, holding all other variables constant, for every one unit increase in the residential-to-total area ratio, there is an 11.1% decrease in price. Substantively, this suggests that properties with a higher mix of non-residential (likely commercial) space are valued more highly than purely residential buildings in this specific dataset.</p>
+<p>I reject the null hypothesis of my first hypothesis that being located in a borough other than Manhattan (Brooklyn, Bronx, Queens, or Staten Island) will be associated with a lower price compared to properties in Manhattan. This is because all four borough_y coefficients are statistically significant and negatively correlated. This means that, holding all other variables constant, being in a borough other than Manhattan is much cheaper compared to properties in Manhattan. Holding all other variables constant (meaning that a house with the same characteristics), a property in Brooklyn is 42.0% cheaper than a property in Manhattan. Holding all other variables constant, a property in the Bronx is 63.7% cheaper than a property in Manhattan. Holding all other variables constant, a property in Queens is 51.3% cheaper than a property in Manhattan. Holding all other variables constant, a property in Staten Island is 52.0% cheaper than a property in Manhattan.</p>
+<p>I reject the null hypothesis of my second hypothesis that higher building density is associated with a lower price. The coefficient is statistically significant and is actually positive (0.157) not negative like predicted in the hypothesis. This indicates that higher (logged) density instead increases market value. Holding all other variables constant, a 1% increase in the building-to-lot area ratio is associated with a 0.157% increase in price.</p>
+<p>I reject the null hypothesis of my third hypothesis which is that properties that were built more recently will be associated with a higher price because the correlation coefficient is negative and statistically significant. Holding all other variables constant, for every additional year a building is newer, the price decreases by 0.1%. This confirms a market preference for older/historic structures.</p>
+</section>
+<section id="section-9-diagnostics-model-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="section-9-diagnostics-model-evaluation"><strong>Section 9: Diagnostics &amp; Model Evaluation</strong></h3>
+<p><img src="images/clipboard-2875113470.png" class="img-fluid"></p>
+<pre><code>    studentized Breusch-Pagan test  
+    
+data:  lm7 
+BP = 1440.1, df = 13, p-value &lt; 2.2e-16     
+
+Shapiro-Wilk normality test  
+
+data:  res_sample 
+W = 0.97518, p-value &lt; 2.2e-16</code></pre>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 21%">
+<col style="width: 17%">
+<col style="width: 20%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><p>statistic</p>
+<p>&lt;dbl&gt;</p></th>
+<th style="text-align: right;"><p>p.value</p>
+<p>&lt;dbl&gt;</p></th>
+<th style="text-align: right;"><p>parameter</p>
+<p>&lt;dbl&gt;</p></th>
+<th style="text-align: left;"><p>method</p>
+<p>&lt;chr&gt;</p></th>
+<th style="text-align: left;"><p>alternative</p>
+<p>&lt;chr&gt;</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1566.709</td>
+<td style="text-align: right;">7.037657e-315</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: left;">White’s Test</td>
+<td style="text-align: left;">greater</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Evaluations</strong></p>
+<p>Residuals vs.&nbsp;Fitted Plot: the plot shows a slight downward tilt with clear outer edges and a gap of points between fitted values 14 and 14.5. However, the line is relatively flat and though the points are not perfectly random, the residual spread is consistent enough that this does not provide much evidence that the linearity assumption is violated.</p>
+<p>The White’s test has an incredibly small p-value, nearly 0, meaning that there is heteroskedasticity present in my model and may signal incorrect model specification.</p>
+<p>Scale-Location Plot: the line seems to be increasing and there is a gap of points between fitted values 14 and 14.5. These points seem more randomly spread, but the line increasing suggests heteroskedasticity.</p>
+<p>The Breusch-Pagan’s test is statistically significant which means that there is heteroskedasticity present in my model.</p>
+<p>Q-Q Plot: There is heavy deviation at the tails, which suggests that the normality assumption is violated and suggests that the error terms are not normally distributed.</p>
+<p>The Shapiro-Wilks Test could not run on ~30,000 observation, so I randomly sampled 5,000 observations from my data. Since it is statistically significant, this suggests that the residuals are not normally distributed. The above plots and tests suggest I need to use robust standard errors.</p>
+<p>Cook’s Distance Plot: There are a few outliers, observation 17286, 20710, 27891.</p>
+<p>Cook’s Distance vs Leverage Plot: These outliers are also on the top right corner of this plot. Combined, these plots suggest that I may need to remove these outliers.</p>
+</section>
+<section id="section-10-model-revision" class="level3">
+<h3 class="anchored" data-anchor-id="section-10-model-revision"><strong>Section 10: Model Revision</strong></h3>
+<p>Based on diagnostics, I will only evaluate observations with 12 &lt;= log_prices &lt;= 15 which removes non-representative transactions, such as familial $1 transfers and ultra-luxury outliers, which were causing heavy deviations in the Q-Q plot tails. I will create an interaction between the logged building density and the borough to specifically address the high correlation coefficient of 0.739 identified between these two variables in the correlation matrix. This allows the model to acknowledge that the impact of density is not uniform across the city; instead, the market value of building density is dependent upon the borough in which the property is located. I will also square yearbuilt which hopefully captures the non-linear relationship where price premiums are associated with both the newest construction and the highly-regarded ‘pre-war’ historic housing. To address the heteroskedasticity, I will use robust standard errors in my model to allow the variability of the error terms to vary by individual response, rather than assuming it is constant. This produces more reliable and valid standard errors.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="huxtable" data-quarto-disable-processing="true" style="margin-left: auto; margin-right: auto;">
+<colgroup><col><col><col></colgroup><thead>
+<tr>
+<th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;      font-weight: normal;"></th><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;      font-weight: normal;">Reg SE</th><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;      font-weight: normal;">HC3 SE</th></tr>
+</thead>
+<tbody>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">(Intercept)</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;">182.66435 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;">182.66435 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(11.46512)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(12.67790)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">yearbuilt</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.17339 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.17339 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01175)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01298)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">I(yearbuilt^2)</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.00004 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.00004 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.00000)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.00000)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">log_density</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.47238 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.47238 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01610)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01974)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">borough_yBK</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.30308 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.30308 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.03359)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04205)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">borough_yBX</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.11114 **&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.11114 **&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.03459)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04285)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">borough_yQN</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.24119 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.24119 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.03371)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04206)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">borough_ySI</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.01176&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.01176&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.03718)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04423)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">unit_bins2-4</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.12118 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.12118 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.00817)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.00771)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">unit_bins5-10</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.00948&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.00948&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01945)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02322)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">unit_bins11-20</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.40375 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.40375 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02580)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.03319)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">unit_bins21-50</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.61480 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.61480 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02128)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02520)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">unit_bins51-100</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.77973 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.77973 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01779)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01804)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">unit_bins100+</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.85473 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.85473 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01462)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01372)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">res_ratio</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.10435 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.10435 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02440)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02567)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">log_density:borough_yBK</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.32627 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.32627 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01891)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02267)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">log_density:borough_yBX</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.40728 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.40728 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02113)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02471)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">log_density:borough_yQN</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.43412 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.43412 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01749)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02092)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">log_density:borough_ySI</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.62603 ***</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.62603 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;">(0.02194)&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;">(0.02322)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">N</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;">30397&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;">30397&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;      font-weight: normal;">R2</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;">0.28150&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;">0.28150&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" colspan="3" style="border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;      font-weight: normal;">*** p &lt; 0.001; ** p &lt; 0.01; * p &lt; 0.05.</th></tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="images/clipboard-1219609949.png" class="img-fluid"></p>
+<pre><code>    studentized Breusch-Pagan test  
+    
+    data:  lm8 
+    BP = 1210.7, df = 18, p-value &lt; 2.2e-16     
+    
+    Shapiro-Wilk normality test  
+    
+    data:  res_sample 
+    W = 0.99272, p-value = 2.562e-15</code></pre>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 21%">
+<col style="width: 17%">
+<col style="width: 20%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><p>statistic</p>
+<p>&lt;dbl&gt;</p></th>
+<th style="text-align: right;"><p>p.value</p>
+<p>&lt;dbl&gt;</p></th>
+<th style="text-align: right;"><p>parameter</p>
+<p>&lt;dbl&gt;</p></th>
+<th style="text-align: left;"><p>method</p>
+<p>&lt;chr&gt;</p></th>
+<th style="text-align: left;"><p>alternative</p>
+<p>&lt;chr&gt;</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1365.662</td>
+<td style="text-align: right;">1.240393e-263</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: left;">White’s Test</td>
+<td style="text-align: left;">greater</td>
+</tr>
+</tbody>
+</table>
+<p>Many of the interpretations are still the same.</p>
+<p>The Q-Q plot still has deviation at the tails, but much less than before. The Scale-Location graph line still increases instead of staying relatively flat, the Breusch-Pagan and White’s Test both are statistically significant and suggest heteroskedasticity is present in my model. The Shapiro-Wilk’s test is also statistically significant which suggests that the residuals are not normally distributed. The strange gap of plot points in the Residuals vs Fitted, Scale-Location, and Residuals vs Leverage plot is gone which may be due to filtering the log_prices. The R<sup>2</sup> value increased to 0.282 which may be due to the interaction term log_density:borough_y and the quadratic term yearbuilt<sup>2</sup> which are all statistically significantly. The model now explains 28.2% of the variance in property values. The borough Staten Island loses statistical significance so the coefficient could be due to random chance rather than a market trend.</p>
+<p>I do not think any more modification can alleviate the issues that still persist. So, I will stop here.</p>
+</section>
+<section id="section-11-final-model-results" class="level3">
+<h3 class="anchored" data-anchor-id="section-11-final-model-results"><strong>Section 11: Final Model &amp; Results</strong></h3>
+<div class="cell">
+<div class="cell-output-display">
+<table class="huxtable" data-quarto-disable-processing="true" style="margin-left: auto; margin-right: auto;">
+<colgroup><col><col></colgroup><thead>
+<tr>
+<th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;      font-weight: normal;"></th><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt;      font-weight: normal;">Final Model (HC3 SE)</th></tr>
+</thead>
+<tbody>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Intercept</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;">182.66435 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(12.67790)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Year Built</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.17339 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01298)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Year Built Squared</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.00004 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.00000)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Log Building Density</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.47238 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01974)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Borough: Brooklyn</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.30308 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04205)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Borough: Bronx</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.11114 **&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04285)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Borough: Queens</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.24119 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04206)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Borough: Staten Island</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.01176&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.04423)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Units: 2-4</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">0.12118 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.00771)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Units: 5-10</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.00948&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02322)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Units: 11-20</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.40375 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.03319)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Units: 21-50</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.61480 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02520)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Units: 51-100</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.77973 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01804)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Units: 100+</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.85473 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.01372)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Residential Area Ratio</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.10435 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02567)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Density × Brooklyn</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.32627 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02267)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Density × Bronx</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.40728 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02471)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Density × Queens</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.43412 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">(0.02092)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">Density × Staten Island</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">-0.62603 ***</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;"></th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt;">(0.02322)&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: normal;">N</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0.4pt 0pt 0pt 0pt;">30397&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;      font-weight: normal;">R2</th><td class="huxtable-cell" style="text-align: right;  border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt;">0.28150&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" colspan="2" style="border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt;      font-weight: normal;">Standard errors are heteroskedasticity robust. *** p &lt; 0.001; ** p &lt; 0.01; * p &lt; 0.05.</th></tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = log_price ~ yearbuilt + I(yearbuilt^2) + log_density * 
+    borough_y + unit_bins + res_ratio, data = ishank_copy2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.12819 -0.30319 -0.00678  0.32185  2.10410 
+
+Coefficients:
+                          Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)              1.827e+02  1.147e+01  15.932  &lt; 2e-16 ***
+yearbuilt               -1.734e-01  1.175e-02 -14.752  &lt; 2e-16 ***
+I(yearbuilt^2)           4.442e-05  3.011e-06  14.750  &lt; 2e-16 ***
+log_density              4.724e-01  1.610e-02  29.333  &lt; 2e-16 ***
+borough_yBK              3.031e-01  3.359e-02   9.022  &lt; 2e-16 ***
+borough_yBX              1.111e-01  3.459e-02   3.213  0.00131 ** 
+borough_yQN              2.412e-01  3.371e-02   7.154 8.62e-13 ***
+borough_ySI             -1.176e-02  3.718e-02  -0.316  0.75179    
+unit_bins2-4             1.212e-01  8.169e-03  14.834  &lt; 2e-16 ***
+unit_bins5-10           -9.478e-03  1.945e-02  -0.487  0.62600    
+unit_bins11-20          -4.037e-01  2.580e-02 -15.650  &lt; 2e-16 ***
+unit_bins21-50          -6.148e-01  2.128e-02 -28.897  &lt; 2e-16 ***
+unit_bins51-100         -7.797e-01  1.779e-02 -43.828  &lt; 2e-16 ***
+unit_bins100+           -8.547e-01  1.462e-02 -58.444  &lt; 2e-16 ***
+res_ratio               -1.043e-01  2.440e-02  -4.277 1.90e-05 ***
+log_density:borough_yBK -3.263e-01  1.891e-02 -17.254  &lt; 2e-16 ***
+log_density:borough_yBX -4.073e-01  2.113e-02 -19.273  &lt; 2e-16 ***
+log_density:borough_yQN -4.341e-01  1.749e-02 -24.819  &lt; 2e-16 ***
+log_density:borough_ySI -6.260e-01  2.194e-02 -28.529  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5322 on 30378 degrees of freedom
+  (7 observations deleted due to missingness)
+Multiple R-squared:  0.2815,    Adjusted R-squared:  0.2811 
+F-statistic: 661.2 on 18 and 30378 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p><strong>Model Interpretation</strong></p>
+<p>The yearbuilt and yearbuilt<sup>2</sup> variables are statistically significant. Yearbuilt has a negative coefficient while yearbuilt<sup>2</sup> has a small positive coefficient. This means that the relationship is not linear and is concave up. Prices decrease as buildings get newer initially, but eventually, the trend reverses as ultra-modern construction and amenities start adding value again. Holding all else constant, the market values both the very old and the very new more than the “middle-aged” buildings.</p>
+<p>The log building density coefficient is positive and statistically significant. For the reference borough (Manhattan), a 1% increase in building density is associated with a 0.472% increase in property price. This reflects the high market value placed on land-use intensity in the urban core.</p>
+<p>The main effect for borough_y for Brooklyn, Bronx, Queens appear positive but represent the difference in price only when density is at its lowest point compared to Manhattan. The main effect for Staten Island is not statistically significant, meaning at the lowest density levels, there is no detectable price difference between Staten Island and Manhattan.</p>
+<p>The density and borough interactions are all statistically significant and negative. Substantively, this means that high-density buildings in other boroughs are valued much less per unit of density than those in Manhattan.</p>
+<p>The unit_bins100+ coefficient is negative and statistically significant. Substantively, compared to a single-unit property, a building with over 100 units sees a massive per-observation price discount. The market places a high premium on the exclusivity of small-scale residential living. Interestingly, Units: 5-10 is not significant, meaning there is no statistical difference in price between a 1-unit and a 7-unit building.</p>
+<p>The res_ratio is statistically significant and negative. Hold all other variables constant, for every 1-unit increase in the residential-to-total area ratio (moving toward a purely residential building), price decreases by 10.4%. This indicates that properties with a mix of commercial space are valued more highly than purely residential ones.</p>
+<p>The R<sup>2</sup> value indicates that model explains 28.2% of the variance in New York City property prices.</p>
+<p>The F-statistic is very large and statistically significant. This means that my independent variables explain significantly more variation in the data than the random errors.</p>
+<p><strong>Hypothesis Testing</strong></p>
+<p>I reject the null hypothesis of my first hypothesis that being located in a borough other than Manhattan (Brooklyn, Bronx, Queens, or Staten Island) will be associated with a lower price compared to properties in Manhattan. This is because all four interaction term coefficients are statistically significant, negative, and larger than just borough_y of which the statistically significant coefficients are positive. Since the interaction coefficients are larger, they offset just borough_y as log building density increases. The interaction terms confirm that once the building density is controlled, Manhattan remains the most expensive borough and properties in other boroughs are associated with comparatively cheaper prices.</p>
+<p>I reject the null hypothesis of my second hypothesis that higher building density is associated with a lower price. This is because the coefficient is statistically significant and positive (0.472), not negative like predicted, indicating that higher (logged) density actually increases market value, instead of the predicted devaluation. Holding all other variables constant, a 1% increase in the building-to-lot area ratio is associated with a 0.472% increase in price.</p>
+<p>I reject the null hypothesis of my third hypothesis which is that properties that were built more recently will be associated with a higher price because the statistically significant coefficients for yearbuilt and yearbuilt<sup>2</sup> are not the same direction (negative and positive respectively) which proves that the relationship is not linear. This concave-up curve reveals that the market places a high premium on historic properties (the left side of the curve) and the newest modern developments (the right side), while “middle-aged” buildings see lower valuations.</p>
+</section>
+<section id="section-12-predicted-values" class="level3">
+<h3 class="anchored" data-anchor-id="section-12-predicted-values"><strong>Section 12: Predicted Values</strong></h3>
+<p><img src="images/clipboard-4148312178.png" class="img-fluid"></p>
+<p><img src="images/clipboard-3037360745.png" class="img-fluid"></p>
+<p><img src="images/clipboard-3778590975.png" class="img-fluid"></p>
+<p>Log_density x borough_y Predicted Values Plot: Manhattan heavily values building density, likely because density corresponds with prime locations and higher revenue potential for the property. Brooklyn, Bronx, and Queens all follow similar trends of having a much smaller but still positive slope compared to Manhattan. This shows that though density is valued across the city, Manhattan is still the extreme outlier in valuing density. While the main effect for Borough: Staten Island (-0.012) is not statistically significant, the interaction effect Density × Staten Island (-0.626) is highly significant. This indicates that while a low-density property in Staten Island may be valued similarly to one in Manhattan, the “density penalty” in Staten Island is severe. In Manhattan’s interaction, moving from low to high, density increases the predicted price from roughly 11.5 to 15.0. In contrast, Staten Island’s interaction causes the price to decreases from about 13.9 to 12.8 as density increases.</p>
+<p>Log_density Predicted Values Plot: There is a strong, positive linear relationship between the log of building density and the predicted log price. This confirms that as more buildings build up (and not out), the value per observation increases significantly. From -3 to 3 log building density, the predicted log price increases from 11.7 to 15. This strong correlation indicates that having high logged building density is a big factor in driving up price and is very similar to the interaction term for Manhattan. This is likely because density corresponds with prime locations and higher revenue potential for the property.</p>
+<p>Yearbuilt Predicted Values Plot: The relationship between the year a building was built and its price is non-linear. As shown in the plot, the predicted log price is highest for the oldest properties (pre-1850s), dips significantly for buildings constructed during the mid-20th century and begins to rise again for modern construction. The predicted log price starts at 14.4 and drops to 13.4 around 1950, then increase to 13.7 around 2025. This captures the value of “character” and “modernity” over mid-century stock. The high price for pre-war/historic homes likely reflects architectural scarcity and durability (still standing after ~200 years), while the uptick for new buildings likely reflects modern amenities.</p>
+</section>
+<section id="section-13-limitations-reflection" class="level3">
+<h3 class="anchored" data-anchor-id="section-13-limitations-reflection"><strong>Section 13: Limitations &amp; Reflection</strong></h3>
+<p>Some limitations of my analysis is that it can only explain less than 30% of variation in NYC housing prices, when the standard for a good model would be over 70%. Though the model can predict the average home sale price, it is especially not good at prdicting the outliers outside of the scope I gave it (12 &lt;= log_price &lt;= 15). My model also lacks variables that would affect the price, such as date of latest renovation, proximity to nearest park or nearest subway station or construction. A 1920s building that was gutted and renovated in 2025, which is worth far more than one with its original plumbing, yet they would appear identical to the yearbuilt variable. Being 500 feet from a subway entrance or Central Park can drastically increase a property’s price, but these small distances cannot be reflected in the borough_y variable. These amenities would certainly affect the price and therefore increase the R<sup>2</sup> value, improving the model. This dataset also does not capture the volatility of mortgage interest rates since it only spans two years. Having 30 more years of data and its interest rates as a control variable, would improve the model.</p>
+<p>In an ideal setting with access to richer datasets, the model would incorporate variables such as proximity to transit, parks, and grocery stores, quality of property views, renovation history, mortgage interest rates at the time of sale, and school district rankings. Furthermore, clustering observations by zip code or neighborhood could better capture geographic heterogeneity and improve the robustness of standard error estimation. Including these additional explanatory variables would likely account for a greater share of the unexplained variance in housing prices and could potentially raise the model’s R<sup>2</sup> above 70%.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
